@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { IRole } from './IRole.interface';
+import { IRole } from './role.interface';
 
 @Injectable()
 export class RolesService {
