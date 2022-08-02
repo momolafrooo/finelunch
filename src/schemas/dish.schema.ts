@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 
-export const MenuSchema = new mongoose.Schema({
+export const DishSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
