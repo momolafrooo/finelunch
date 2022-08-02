@@ -7,6 +7,7 @@ import { RolesModule } from './roles/roles.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { OrdersModule } from './orders/orders.module';
 import { MenusModule } from './menus/menus.module';
+import { DishesModule } from './dishes/dishes.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MenusModule } from './menus/menus.module';
     RestaurantsModule,
     OrdersModule,
     MenusModule,
+    DishesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
