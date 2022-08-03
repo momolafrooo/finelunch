@@ -33,10 +33,7 @@ export class Menu {
   })
   restaurant: Restaurant;
 
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Dish',
-  })
+  @Prop([Dish])
   dishes: Dish[];
 }
 

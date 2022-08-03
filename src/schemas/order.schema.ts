@@ -7,7 +7,11 @@ export type OrderDocument = Order & mongoose.Document;
 
 @Schema()
 export class Order {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  })
   user: User;
 
   @Prop({
