@@ -5,9 +5,20 @@ import { usersProviders } from './users.provider';
 import { DatabaseModule } from '../database/database.module';
 
 @Module({
-  providers: [UsersService, ...usersProviders],
+  providers: [
+    {
+      provide: 'USER_SERVICE',
+      useClass: UsersService,
+    },
+    ...usersProviders,
+  ],
   controllers: [UsersController],
-  exports: [UsersService],
+  exports: [
+    {
+      provide: 'USER_SERVICE',
+      useClass: UsersService,
+    },
+  ],
   imports: [DatabaseModule],
 })
 export class UsersModule {}

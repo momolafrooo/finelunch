@@ -7,6 +7,9 @@ import { OrdersModule } from './orders/orders.module';
 import { MenusModule } from './menus/menus.module';
 import { DishesModule } from './dishes/dishes.module';
 import { ContributionsModule } from './contributions/contributions.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import configuration from './config/configuration';
 
 @Module({
   imports: [
@@ -18,6 +21,10 @@ import { ContributionsModule } from './contributions/contributions.module';
     MenusModule,
     DishesModule,
     ContributionsModule,
+    AuthModule,
+    ConfigModule.forRoot({
+      load: [configuration],
+    }),
   ],
   controllers: [],
   providers: [],
