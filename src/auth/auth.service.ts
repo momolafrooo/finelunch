@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CACHE_MANAGER,
   Inject,
   Injectable,
@@ -12,6 +13,7 @@ import { LoginDto } from './dto/login.dto';
 import { comparePassword } from '../utils/hash';
 import { EmailService } from '../email/email.service';
 import { v4 as uuidv4 } from 'uuid';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 const RESET_PASSWORD_EXPIRE = 1000 * 60 * 60;
 
@@ -57,6 +59,23 @@ export class AuthService {
     });
 
     await this.sendForgotPasswordEmail(user.email, user.firstName, token);
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const username = await this.cacheManager.get(resetPasswordDto.token);
+
+    if (!username) throw new BadRequestException('Invalid Request!');
+
+    const user = await this.usersService.findByUsername(username);
+
+    if (!user) throw new NotFoundException('User not found!');
+
+    if (resetPasswordDto.passwordConfirmation !== resetPasswordDto.password)
+      throw new BadRequestException('Password does not match!');
+
+    await this.cacheManager.del(resetPasswordDto.token);
+
+    await this.usersService.updatePassword(user._id, resetPasswordDto.password);
   }
 
   private async sendForgotPasswordEmail(

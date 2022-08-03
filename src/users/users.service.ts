@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
+import { hashPassword } from '../utils/hash';
 
 @Injectable()
 export class UsersService {
@@ -16,5 +17,11 @@ export class UsersService {
 
   async findByEmail(email: string) {
     return this.userModel.findOne({ email });
+  }
+
+  async updatePassword(id: string, password: string) {
+    return this.userModel.findByIdAndUpdate(id, {
+      password: hashPassword(password),
+    });
   }
 }
