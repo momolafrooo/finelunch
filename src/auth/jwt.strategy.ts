@@ -1,6 +1,6 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -18,6 +18,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    return await this.usersService.findByUsername(payload?.username);
+    const user = await this.usersService.findByUsername(payload?.username);
+
+    if (!user) throw new UnauthorizedException();
+
+    return user;
   }
 }
