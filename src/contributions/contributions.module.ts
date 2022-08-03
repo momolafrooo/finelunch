@@ -1,12 +1,19 @@
 import { Module } from '@nestjs/common';
 import { ContributionsController } from './contributions.controller';
 import { ContributionsService } from './contributions.service';
-import { DatabaseModule } from '../database/database.module';
-import { contributionsProviders } from './constributions.provider';
+import { MongooseModule } from '@nestjs/mongoose';
+import {
+  Contribution,
+  ContributionSchema,
+} from '../schemas/contribution.schema';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [
+    MongooseModule.forFeature([
+      { name: Contribution.name, schema: ContributionSchema },
+    ]),
+  ],
   controllers: [ContributionsController],
-  providers: [ContributionsService, ...contributionsProviders],
+  providers: [ContributionsService],
 })
 export class ContributionsModule {}

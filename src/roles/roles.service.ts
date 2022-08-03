@@ -1,8 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { IRole } from './role.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Role, RoleDocument } from '../schemas/role.schema';
 
 @Injectable()
 export class RolesService {
-  constructor(@Inject('Role') private readonly roleModel: Model<IRole>) {}
+  constructor(
+    @InjectModel(Role.name)
+    private readonly roleModel: Model<RoleDocument>,
+  ) {}
 }

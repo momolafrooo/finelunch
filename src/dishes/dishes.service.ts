@@ -1,8 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { IDish } from './dishes.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Dish, DishDocument } from '../schemas/dish.schema';
 
 @Injectable()
 export class DishesService {
-  constructor(@Inject('Dish') private readonly dishModel: Model<IDish>) {}
+  constructor(
+    @InjectModel(Dish.name)
+    private readonly dishModel: Model<DishDocument>,
+  ) {}
 }

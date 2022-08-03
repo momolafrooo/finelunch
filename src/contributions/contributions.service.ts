@@ -1,10 +1,15 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { IContribution } from './constributions.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import {
+  Contribution,
+  ContributionDocument,
+} from '../schemas/contribution.schema';
 
 @Injectable()
 export class ContributionsService {
   constructor(
-    @Inject('Contribution') private readonly contribution: Model<IContribution>,
+    @InjectModel(Contribution.name)
+    private readonly contributionModel: Model<ContributionDocument>,
   ) {}
 }

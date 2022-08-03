@@ -1,21 +1,40 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { User } from './user.schema';
 
-export const ContributionSchema = new mongoose.Schema({
-  user: {
+export type ContributionDocument = Contribution & mongoose.Document;
+
+@Schema()
+export class Contribution {
+  @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
-  },
-  amount: {
-    type: Number,
+  })
+  user: User;
+
+  @Prop({
     required: true,
-  },
-  type: {
-    type: String,
+    unique: true,
+  })
+  type: string;
+
+  @Prop({
     required: true,
-  },
-  month: {
-    type: String,
+    unique: true,
+  })
+  amount: number;
+
+  @Prop({
     required: true,
-  },
-});
+    unique: true,
+  })
+  month: string;
+
+  @Prop({
+    default: Date.now(),
+  })
+  created_at: Date;
+}
+
+export const ContributionSchema = SchemaFactory.createForClass(Contribution);

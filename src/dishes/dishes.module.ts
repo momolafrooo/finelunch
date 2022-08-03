@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { DishesService } from './dishes.service';
 import { DishesController } from './dishes.controller';
-import { DatabaseModule } from '../database/database.module';
-import { dishesProviders } from './dishes.provider';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Dish, DishSchema } from '../schemas/dish.schema';
 
 @Module({
-  imports: [DatabaseModule],
-  providers: [DishesService, ...dishesProviders],
+  imports: [
+    MongooseModule.forFeature([{ name: Dish.name, schema: DishSchema }]),
+  ],
+  providers: [DishesService],
   controllers: [DishesController],
 })
 export class DishesModule {}

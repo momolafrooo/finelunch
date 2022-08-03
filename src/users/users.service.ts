@@ -1,8 +1,27 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { IUser } from './user.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from '../schemas/user.schema';
+import { hashPassword } from '../utils/hash';
 
 @Injectable()
 export class UsersService {
-  constructor(@Inject('User') private readonly userModel: Model<IUser>) {}
+  constructor(
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
+  ) {}
+
+  async findByUsername(username: string) {
+    return this.userModel.findOne({ username });
+  }
+
+  async findByEmail(email: string) {
+    return this.userModel.findOne({ email });
+  }
+
+  async updatePassword(id: string, password: string) {
+    return this.userModel.findByIdAndUpdate(id, {
+      password: hashPassword(password),
+    });
+  }
 }
