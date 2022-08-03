@@ -1,22 +1,33 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import Cache from 'cache-manager';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { comparePassword } from '../utils/hash';
+import { EmailService } from '../email/email.service';
+import { v4 as uuidv4 } from 'uuid';
+
+const RESET_PASSWORD_EXPIRE = 1000 * 60 * 60;
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject('USER_SERVICE') private readonly usersService: UsersService,
+    @Inject('EMAIL_SERVICE') private readonly emailsService: EmailService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly jwtService: JwtService,
   ) {}
 
   private async validateUser(username: string, password: string) {
     const user = await this.usersService.findByUsername(username);
     if (user && comparePassword(password, user.password)) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
-      return result;
+      return user;
     }
     return null;
   }
@@ -32,5 +43,37 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user) throw new NotFoundException();
+
+    const token = uuidv4();
+
+    await this.cacheManager.set(token, user.username, {
+      ttl: RESET_PASSWORD_EXPIRE,
+    });
+
+    await this.sendForgotPasswordEmail(user.email, user.firstName, token);
+  }
+
+  private async sendForgotPasswordEmail(
+    email: string,
+    name: string,
+    token: string,
+  ) {
+    const url = `localhost:8080/api/auth/reset-password/${token}`;
+
+    await this.emailsService.sendEmail(
+      email,
+      'Reset password email',
+      './forgot-password',
+      {
+        name,
+        url,
+      },
+    );
   }
 }

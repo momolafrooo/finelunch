@@ -1,8 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { IOrder } from './orders.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Order, OrderDocument } from '../schemas/order.schema';
 
 @Injectable()
 export class OrdersService {
-  constructor(@Inject('Order') private readonly orderModel: Model<IOrder>) {}
+  constructor(
+    @InjectModel(Order.name)
+    private readonly orderModel: Model<OrderDocument>,
+  ) {}
 }

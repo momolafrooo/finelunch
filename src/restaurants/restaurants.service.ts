@@ -1,10 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { IRestaurant } from './restaurants.interface';
+import { InjectModel } from '@nestjs/mongoose';
+import { Restaurant, RestaurantDocument } from '../schemas/restaurant.schema';
 
 @Injectable()
 export class RestaurantsService {
   constructor(
-    @Inject('Restaurant') private readonly restaurantModel: Model<IRestaurant>,
+    @InjectModel(Restaurant.name)
+    private readonly restaurantModel: Model<RestaurantDocument>,
   ) {}
 }

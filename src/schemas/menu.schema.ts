@@ -1,25 +1,43 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { Restaurant } from './restaurant.schema';
+import { Dish } from './dish.schema';
 
-export const MenuSchema = new mongoose.Schema({
-  name: {
-    type: String,
+export type MenuDocument = Menu & mongoose.Document;
+
+@Schema()
+export class Menu {
+  @Prop({
     required: true,
     unique: true,
-  },
-  slug: {
-    type: String,
+  })
+  name: string;
+
+  @Prop({
     required: true,
     unique: true,
-  },
-  image: String,
-  restaurant: {
+  })
+  slug: string;
+
+  @Prop()
+  image: string;
+
+  @Prop({
+    default: Date.now(),
+  })
+  created_at: Date;
+
+  @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Restaurant',
-  },
-  dishes: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Dish',
-    },
-  ],
-});
+  })
+  restaurant: Restaurant;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Dish',
+  })
+  dishes: Dish[];
+}
+
+export const MenuSchema = SchemaFactory.createForClass(Menu);
