@@ -1,1 +1,1 @@
-export const jwtConstants = {};
+export const USER_PASSWORD = 'P@$$w0rd';

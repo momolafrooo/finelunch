@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Role } from './role.schema';
+import { Exclude } from 'class-transformer';
 
 export type UserDocument = User & mongoose.Document;
 
@@ -25,6 +26,7 @@ export class User {
   @Prop()
   avatar: string;
 
+  @Exclude()
   @Prop({
     required: true,
   })
@@ -36,13 +38,29 @@ export class User {
   })
   username: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Role' })
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Role',
+    required: true,
+  })
   role: Role;
 
   @Prop({
     default: Date.now(),
   })
   created_at: Date;
+
+  constructor(partial: Partial<User>) {
+    Object.assign(this, partial);
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    delete ret.__v;
+    delete ret.password;
+    return ret;
+  },
+});

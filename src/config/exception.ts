@@ -1,7 +1,12 @@
-import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { IncomingMessage } from 'http';
-import { HttpException, HttpStatus } from '@nestjs/common';
 
 export const getStatusCode = (exception: unknown): number => {
   return exception instanceof HttpException
@@ -9,13 +14,13 @@ export const getStatusCode = (exception: unknown): number => {
     : HttpStatus.INTERNAL_SERVER_ERROR;
 };
 
-export const getErrorMessage = (exception: unknown): string => {
-  return String(exception);
+export const getErrorMessage = (exception: any): string | string[] => {
+  return exception?.response?.message ?? exception?.message;
 };
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<IncomingMessage>();
