@@ -10,7 +10,12 @@ import { Restaurant, RestaurantSchema } from '../schemas/restaurant.schema';
       { name: Restaurant.name, schema: RestaurantSchema },
     ]),
   ],
-  providers: [RestaurantsService],
+  providers: [
+    {
+      provide: 'RESTAURANT_SERVICE',
+      useClass: RestaurantsService,
+    },
+  ],
   controllers: [RestaurantsController],
 })
 export class RestaurantsModule {}
