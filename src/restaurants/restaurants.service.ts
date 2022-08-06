@@ -70,11 +70,11 @@ export class RestaurantsService {
 
   async isSlugUsed(slug: string, id?: string) {
     const resto = await this.findBySlug(slug);
-    return !!resto || (resto && resto._id !== id);
+    return id ? resto && resto._id.toString() !== id : !!resto;
   }
 
   async isPhoneUsed(phone: string, id?: string) {
     const resto = await this.findByPhone(phone);
-    return !!resto || (resto && resto._id !== id);
+    return id ? resto && resto._id.toString() !== id : !!resto;
   }
 }

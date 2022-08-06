@@ -87,11 +87,11 @@ export class UsersService {
 
   async isEmailUsed(email: string, id?: string) {
     const user = await this.findByEmail(email);
-    return !!user || (user && user._id !== id);
+    return id ? user && user._id.toString() !== id : !!user;
   }
 
   async isUsernameUsed(username: string, id?: string) {
     const user = await this.findByUsername(username);
-    return !!user || (user && user._id !== id);
+    return id ? user && user._id.toString() !== id : !!user;
   }
 }
