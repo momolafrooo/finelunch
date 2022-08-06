@@ -32,13 +32,11 @@ export class UsersService {
   }
 
   async save(userDto: UserDto) {
-    let user = await this.findByEmail(userDto.email);
+    if (await this.isEmailUsed(userDto.email))
+      throw new BadRequestException('Email already exists');
 
-    if (user) throw new BadRequestException('Email already exists!');
-
-    user = await this.findByUsername(userDto.username);
-
-    if (user) throw new BadRequestException('Username already exists!');
+    if (await this.isUsernameUsed(userDto.username))
+      throw new BadRequestException('Username already exists');
 
     const role = await this.roleService.findById(userDto.roleId);
 
@@ -58,10 +56,10 @@ export class UsersService {
 
     if (!user) throw new BadRequestException('User not found');
 
-    if (await this.isEmailUnique(userDto.email, id))
+    if (await this.isEmailUsed(userDto.email, id))
       throw new BadRequestException('Email already exists');
 
-    if (await this.isUsernameUnique(userDto.username, id))
+    if (await this.isUsernameUsed(userDto.username, id))
       throw new BadRequestException('Username already exists');
 
     const role = await this.roleService.findById(userDto.roleId);
@@ -87,13 +85,13 @@ export class UsersService {
     });
   }
 
-  async isEmailUnique(email: string, id?: string) {
+  async isEmailUsed(email: string, id?: string) {
     const user = await this.findByEmail(email);
-    return !user || (user && user._id === id);
+    return !!user || (user && user._id !== id);
   }
 
-  async isUsernameUnique(username: string, id?: string) {
+  async isUsernameUsed(username: string, id?: string) {
     const user = await this.findByUsername(username);
-    return !user || (user && user._id === id);
+    return !!user || (user && user._id !== id);
   }
 }
