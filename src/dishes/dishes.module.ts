@@ -8,7 +8,12 @@ import { Dish, DishSchema } from '../schemas/dish.schema';
   imports: [
     MongooseModule.forFeature([{ name: Dish.name, schema: DishSchema }]),
   ],
-  providers: [DishesService],
+  providers: [
+    {
+      provide: 'DISH_SERVICE',
+      useClass: DishesService,
+    },
+  ],
   controllers: [DishesController],
 })
 export class DishesModule {}

@@ -19,7 +19,6 @@ export class Dish {
 
   @Prop({
     required: true,
-    unique: true,
   })
   price: number;
 
