@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
+import { Restaurant } from './restaurant.schema';
 
 export type DishDocument = Dish & mongoose.Document;
 
@@ -29,6 +30,13 @@ export class Dish {
     default: Date.now(),
   })
   created_at: Date;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Restaurant',
+    required: false,
+  })
+  restaurant?: Restaurant;
 }
 
 export const DishSchema = SchemaFactory.createForClass(Dish);
