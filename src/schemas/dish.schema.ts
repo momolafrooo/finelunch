@@ -8,13 +8,11 @@ export type DishDocument = Dish & mongoose.Document;
 export class Dish {
   @Prop({
     required: true,
-    unique: true,
   })
   name: string;
 
   @Prop({
     required: true,
-    unique: true,
   })
   slug: string;
 

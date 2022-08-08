@@ -24,6 +24,12 @@ export class DishesService {
     return this.dishModel.findById(id);
   }
 
+  async findByIdOrFail(id: string) {
+    return this.dishModel
+      .findById(id)
+      .orFail(new NotFoundException('Dish not found'));
+  }
+
   async findBySlug(slug: string) {
     return this.dishModel.findOne({ slug });
   }

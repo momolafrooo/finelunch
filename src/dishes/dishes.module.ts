@@ -14,6 +14,12 @@ import { Dish, DishSchema } from '../schemas/dish.schema';
       useClass: DishesService,
     },
   ],
+  exports: [
+    {
+      provide: 'DISH_SERVICE',
+      useClass: DishesService,
+    },
+  ],
   controllers: [DishesController],
 })
 export class DishesModule {}
