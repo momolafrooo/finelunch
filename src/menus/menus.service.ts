@@ -7,9 +7,9 @@ import {
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Menu, MenuDocument } from '../schemas/menu.schema';
-import { createSlug } from '../utils/slug';
-import { MenuDto } from './dto/menu.dto';
+import { MenuDto, SelectedDish } from './dto/menu.dto';
 import { DishesService } from '../dishes/dishes.service';
+import { createSlug } from '../utils/slug';
 
 @Injectable()
 export class MenusService {
@@ -33,47 +33,31 @@ export class MenusService {
   }
 
   async save(menuDto: MenuDto) {
-    const { name, image, dishes } = menuDto;
-    const slug = createSlug(name);
+    const { image, dishes } = menuDto;
+    const name = this.generateMenuName();
 
-    if (await this.isSlugUsed(slug))
-      throw new BadRequestException('The name has already been taken');
+    if (await this.isSlugUsed(createSlug(name)))
+      throw new BadRequestException('There is already a menu for today');
 
-    const newDishes = dishes.map(async (dish) => {
-      const dishFound = await this.dishService.findById(dish.id);
-      if (!dishFound) throw new NotFoundException('Dish not found');
-      dishFound.price = dish.price;
-      return dishFound;
-    });
+    const newDishes = await this.getUpdatedDishes(dishes);
 
     return this.menuModel.create({
       name,
-      slug,
+      slug: createSlug(name),
       image,
       dishes: newDishes,
     });
   }
 
   async update(id: string, menuDto: MenuDto) {
-    const { name, image, dishes } = menuDto;
-    const slug = createSlug(name);
+    const { image, dishes } = menuDto;
 
-    if (await this.isSlugUsed(slug, id))
-      throw new BadRequestException('The name has already been taken');
-
-    const newDishes = dishes.map(async (dish) => {
-      const dishFound = await this.dishService.findById(dish.id);
-      if (!dishFound) throw new NotFoundException('Dish not found');
-      dishFound.price = dish.price;
-      return dishFound;
-    });
+    const newDishes = await this.getUpdatedDishes(dishes);
 
     return this.menuModel
       .findByIdAndUpdate(
         id,
         {
-          name,
-          slug,
           image,
           dishes: newDishes,
         },
@@ -85,11 +69,35 @@ export class MenusService {
   async destroy(id: string) {
     return this.menuModel
       .findByIdAndDelete(id)
-      .orFail(new NotFoundException('Dish not found'));
+      .orFail(new NotFoundException('Menu not found'));
   }
 
   async isSlugUsed(slug: string, id?: string) {
     const dish = await this.findBySlug(slug);
     return id ? dish && dish._id.toString() !== id : !!dish;
+  }
+
+  generateMenuName() {
+    return (
+      'Menu du ' +
+      new Intl.DateTimeFormat('fr-FR', {
+        dateStyle: 'full',
+      }).format(Date.now())
+    );
+  }
+
+  private async getUpdatedDishes(dishes: SelectedDish[]) {
+    const promisedDishes = dishes.map((dish) =>
+      this.dishService.findByIdOrFail(dish.id),
+    );
+
+    return (await Promise.all(promisedDishes)).map((dish) => {
+      const selectedDish = dishes.find(
+        (dishItem) => dishItem.id === dish._id.toString(),
+      );
+
+      if (selectedDish.price) dish.price = selectedDish.price;
+      return dish;
+    });
   }
 }

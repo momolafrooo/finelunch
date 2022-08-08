@@ -1,18 +1,15 @@
 import { IsArray, IsNotEmpty, ValidateNested } from 'class-validator';
 
 export class MenuDto {
-  @IsNotEmpty()
-  name: string;
-
   image: string;
 
   @ValidateNested()
   @IsNotEmpty()
   @IsArray()
-  dishes: Dish[];
+  dishes: SelectedDish[];
 }
 
-class Dish {
+export class SelectedDish {
   @IsNotEmpty()
   id: string;
 
