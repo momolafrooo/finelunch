@@ -5,6 +5,9 @@ import { Order, OrderDocument } from '../schemas/order.schema';
 import { OrderDto } from './dto/order.dto';
 import { MenusService } from '../menus/menus.service';
 import { DishDocument } from '../schemas/dish.schema';
+import { OrdersStatus } from './orders.status';
+
+const GRANT = 1500;
 
 @Injectable()
 export class OrdersService {
@@ -53,6 +56,8 @@ export class OrdersService {
     return this.orderModel.create({
       user: userId,
       dish,
+      status:
+        dish.price > GRANT ? OrdersStatus.PENDING : OrdersStatus.COMPLETED,
     });
   }
 
@@ -79,6 +84,8 @@ export class OrdersService {
       {
         user: userId,
         dish,
+        status:
+          dish.price > GRANT ? OrdersStatus.PENDING : OrdersStatus.COMPLETED,
       },
       { new: true },
     );
