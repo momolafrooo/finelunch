@@ -28,6 +28,12 @@ export class MenusService {
     return this.menuModel.findById(id);
   }
 
+  async findByIdOrFail(id: string) {
+    return this.menuModel
+      .findById(id)
+      .orFail(new NotFoundException('Menu not found'));
+  }
+
   async findBySlug(slug: string) {
     return this.menuModel.findOne({ slug });
   }
@@ -84,6 +90,12 @@ export class MenusService {
         dateStyle: 'full',
       }).format(Date.now())
     );
+  }
+
+  isExpired(createdAt: Date) {
+    const dateNow = new Intl.DateTimeFormat().format(Date.now());
+    const formattedCreatedAt = new Intl.DateTimeFormat().format(createdAt);
+    return dateNow > formattedCreatedAt;
   }
 
   private async getUpdatedDishes(dishes: SelectedDish[]) {

@@ -22,9 +22,22 @@ export class Order {
   dish: Dish;
 
   @Prop({
+    required: true,
+  })
+  status: string;
+
+  @Prop({
     default: Date.now(),
   })
   created_at: Date;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
+
+OrderSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    ret.user = ret.user.firstName + ' ' + ret.user.lastName;
+    ret.dish = ret.dish.name;
+    return ret;
+  },
+});

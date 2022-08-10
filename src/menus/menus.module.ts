@@ -17,5 +17,11 @@ import { DishesModule } from '../dishes/dishes.module';
       useClass: MenusService,
     },
   ],
+  exports: [
+    {
+      provide: 'MENU_SERVICE',
+      useClass: MenusService,
+    },
+  ],
 })
 export class MenusModule {}
