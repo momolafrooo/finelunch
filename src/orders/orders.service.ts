@@ -33,10 +33,12 @@ export class OrdersService {
   }
 
   async save(userId: string, orderDto: OrderDto) {
-    const order = await this.findByUserIdAndMenuId(userId, orderDto.menuId);
+    const order = await this.findByUserIdAndDate(userId, orderDto.menuId);
+
+    console.log(order);
 
     if (order)
-      throw new BadRequestException('You already have an order for today');
+      throw new BadRequestException('You already have an order for this menu');
 
     const menu = await this.menuService.findByIdOrFail(orderDto.menuId);
 
@@ -56,6 +58,8 @@ export class OrdersService {
     return this.orderModel.create({
       user: userId,
       dish,
+      amount: dish.price,
+      rest: dish.price - GRANT,
       status:
         dish.price > GRANT ? OrdersStatus.PENDING : OrdersStatus.COMPLETED,
     });
@@ -84,6 +88,8 @@ export class OrdersService {
       {
         user: userId,
         dish,
+        amount: dish.price,
+        rest: dish.price - GRANT,
         status:
           dish.price > GRANT ? OrdersStatus.PENDING : OrdersStatus.COMPLETED,
       },
@@ -91,8 +97,8 @@ export class OrdersService {
     );
   }
 
-  async findByUserIdAndMenuId(userId: string, menuId: string) {
-    return this.orderModel.findOne({ user: userId, menu: menuId });
+  async findByUserIdAndDate(userId: string, date: Date) {
+    return this.orderModel.findOn({ user: userId, created_at: menuId });
   }
 
   async destroy(id: string) {

@@ -27,6 +27,16 @@ export class Order {
   status: string;
 
   @Prop({
+    required: true,
+  })
+  amount: number;
+
+  @Prop({
+    required: true,
+  })
+  rest: number;
+
+  @Prop({
     default: Date.now(),
   })
   created_at: Date;

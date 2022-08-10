@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { User } from './user.schema';
+import { Order } from './order.schema';
 
 export type ContributionDocument = Contribution & mongoose.Document;
 
@@ -9,25 +10,29 @@ export class Contribution {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: false,
   })
   user: User;
 
   @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Order',
+    required: false,
+  })
+  order: Order;
+
+  @Prop({
     required: true,
-    unique: true,
   })
   type: string;
 
   @Prop({
     required: true,
-    unique: true,
   })
   amount: number;
 
   @Prop({
     required: true,
-    unique: true,
   })
   month: string;
 
