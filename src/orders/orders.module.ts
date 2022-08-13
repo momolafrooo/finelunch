@@ -16,6 +16,12 @@ import { MenusModule } from '../menus/menus.module';
       useClass: OrdersService,
     },
   ],
+  exports: [
+    {
+      provide: 'ORDER_SERVICE',
+      useClass: OrdersService,
+    },
+  ],
   controllers: [OrdersController],
 })
 export class OrdersModule {}
