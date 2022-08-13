@@ -6,6 +6,7 @@ import { OrderDto } from './dto/order.dto';
 import { MenusService } from '../menus/menus.service';
 import { DishDocument } from '../schemas/dish.schema';
 import { OrdersStatus } from './orders.status';
+import * as moment from 'moment';
 
 const GRANT = 1500;
 
@@ -29,22 +30,22 @@ export class OrdersService {
   async findByIdOrFail(id: string) {
     return this.orderModel
       .findById(id)
+      .populate('dish')
+      .populate('user')
       .orFail(new BadRequestException('Order not found'));
   }
 
   async save(userId: string, orderDto: OrderDto) {
-    const order = await this.findByUserIdAndDate(userId, orderDto.menuId);
-
-    console.log(order);
-
-    if (order)
-      throw new BadRequestException('You already have an order for this menu');
-
     const menu = await this.menuService.findByIdOrFail(orderDto.menuId);
 
     if (this.menuService.isExpired(menu.created_at)) {
       throw new BadRequestException('Menu expired');
     }
+
+    const order = await this.findByUserIdAndDate(userId, menu.created_at);
+
+    if (order)
+      throw new BadRequestException('You already have an order for this menu');
 
     const dish = menu.dishes.find(
       (dish: DishDocument) => dish._id.toString() === orderDto.dishId,
@@ -97,8 +98,43 @@ export class OrdersService {
     );
   }
 
+  async resetOrderById(orderId: string, amount: number) {
+    const order = await this.findByIdOrFail(orderId);
+
+    return this.orderModel.findByIdAndUpdate(
+      order._id,
+      {
+        rest: amount,
+        status: OrdersStatus.PENDING,
+      },
+      { new: true },
+    );
+  }
+
+  async validateOrder(orderId: string) {
+    return this.orderModel
+      .findByIdAndUpdate(
+        orderId,
+        {
+          rest: 0,
+          status: OrdersStatus.COMPLETED,
+        },
+        { new: true },
+      )
+      .orFail(new BadRequestException('Order not found'));
+  }
+
   async findByUserIdAndDate(userId: string, date: Date) {
-    return this.orderModel.findOn({ user: userId, created_at: menuId });
+    const start = moment(date).startOf('day').toDate();
+    const end = moment(date).endOf('day').toDate();
+
+    return this.orderModel.findOne({
+      user: userId,
+      created_at: {
+        $gte: start,
+        $lte: end,
+      },
+    });
   }
 
   async destroy(id: string) {

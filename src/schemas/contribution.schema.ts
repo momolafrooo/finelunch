@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { User } from './user.schema';
-import { Order } from './order.schema';
+import { OrderDocument } from './order.schema';
 
 export type ContributionDocument = Contribution & mongoose.Document;
 
@@ -19,7 +19,7 @@ export class Contribution {
     ref: 'Order',
     required: false,
   })
-  order: Order;
+  order: OrderDocument;
 
   @Prop({
     required: true,
@@ -32,7 +32,7 @@ export class Contribution {
   amount: number;
 
   @Prop({
-    required: true,
+    required: false,
   })
   month: string;
 

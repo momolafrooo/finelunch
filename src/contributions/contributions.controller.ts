@@ -6,11 +6,13 @@ import {
   Inject,
   Param,
   Post,
-  Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ContributionsService } from './contributions.service';
 import { ContributionDto } from './dto/contribution.dto';
+import { JwtAuthGuard } from '../auth/jwt.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('contributions')
 export class ContributionsController {
   constructor(
@@ -31,14 +33,6 @@ export class ContributionsController {
   @Post()
   async save(@Body() contributionDto: ContributionDto) {
     return await this.contributionService.save(contributionDto);
-  }
-
-  @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() contributionDto: ContributionDto,
-  ) {
-    return await this.contributionService.update(id, contributionDto);
   }
 
   @Delete(':id')

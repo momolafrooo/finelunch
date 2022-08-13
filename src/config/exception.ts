@@ -15,6 +15,7 @@ export const getStatusCode = (exception: unknown): number => {
 };
 
 export const getErrorMessage = (exception: any): string | string[] => {
+  console.log(exception);
   return exception?.response?.message ?? exception?.message;
 };
 

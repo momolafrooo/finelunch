@@ -30,7 +30,13 @@ export class ContributionsService {
   ) {}
 
   async findAll() {
-    return this.contributionModel.find().populate('order').populate('user');
+    return this.contributionModel
+      .find()
+      .populate({
+        path: 'order',
+        populate: 'user',
+      })
+      .populate('user');
   }
 
   async findById(id: string) {
@@ -44,9 +50,22 @@ export class ContributionsService {
   async findByIdOrFail(id: string) {
     return this.contributionModel
       .findById(id)
-      .populate('order')
+      .populate({
+        path: 'order',
+        populate: 'user',
+      })
       .populate('user')
       .orFail(new NotFoundException('Contribution not found'));
+  }
+
+  async findByUserIdAndOrderId(userId: string, orderId: string) {
+    return this.contributionModel
+      .findOne({ user: userId, order: orderId })
+      .populate({
+        path: 'order',
+        populate: 'user',
+      })
+      .populate('user');
   }
 
   async save(contributionDto: ContributionDto) {
@@ -55,18 +74,17 @@ export class ContributionsService {
     return this.contributionModel.create(contribution);
   }
 
-  async update(contributionId: string, contributionDto: ContributionDto) {
-    const contribution = await this.validateContribution(contributionDto);
-
-    return this.contributionModel
-      .findByIdAndUpdate(contributionId, contribution, { new: true })
-      .orFail(new NotFoundException('Contribution not found'));
-  }
-
   async destroy(id: string) {
-    return this.contributionModel
-      .findByIdAndDelete(id)
-      .orFail(new NotFoundException('Contribution not found'));
+    const contribution = await this.findByIdOrFail(id);
+
+    if (contribution.type === ContributionType.EXTRAS) {
+      await this.orderService.resetOrderById(
+        contribution?.order?._id,
+        contribution.amount,
+      );
+    }
+
+    return this.contributionModel.findByIdAndDelete(id);
   }
 
   private async validateContribution(contributionDto: ContributionDto) {
@@ -80,19 +98,30 @@ export class ContributionsService {
   }
 
   private async validateExtraContribution(contributionDto: ContributionDto) {
+    const contribution = await this.findByUserIdAndOrderId(
+      contributionDto.userId,
+      contributionDto.orderId,
+    );
+
+    if (contribution) {
+      throw new BadRequestException('User already contributed');
+    }
+
     const order = await this.orderService.findByIdOrFail(
       contributionDto.orderId,
     );
 
     if (order.status !== OrdersStatus.PENDING) {
       throw new BadRequestException(
-        'Cant add extras to an order that is not pending',
+        'Cant add extras to an order that is completed',
       );
     }
 
     if (contributionDto.amount !== order.rest) {
-      throw new BadRequestException('Invalid amount');
+      throw new BadRequestException(`You have to pay ${order.rest} XOF`);
     }
+
+    await this.orderService.validateOrder(order._id);
 
     return {
       order,
@@ -111,7 +140,9 @@ export class ContributionsService {
     }
 
     if (contributionDto.amount !== MONTHLY_CONTRIBUTION) {
-      throw new BadRequestException('The monthly contribution is 10.000 XOF');
+      throw new BadRequestException(
+        `The monthly contribution is ${MONTHLY_CONTRIBUTION} XOF`,
+      );
     }
 
     return {
