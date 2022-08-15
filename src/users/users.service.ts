@@ -49,17 +49,23 @@ export class UsersService {
     if (await this.isUsernameUsed(userDto.username))
       throw new BadRequestException('Username already exists');
 
-    const role = await this.roleService.findById(userDto.roleId);
+    if (userDto.password && userDto.password !== userDto.passwordConfirmation)
+      throw new BadRequestException('Password does not match!');
+
+    let role;
+    if (userDto.roleSlug) {
+      role = await this.roleService.findBySlug(userDto.roleSlug);
+    } else {
+      role = await this.roleService.findById(userDto.roleId);
+    }
 
     if (!role) throw new BadRequestException('Role not found!');
 
-    await this.userModel.create({
+    return await this.userModel.create({
       ...userDto,
       role,
-      password: hashPassword(USER_PASSWORD),
+      password: hashPassword(userDto?.password || USER_PASSWORD),
     });
-
-    return userDto;
   }
 
   async update(id: string, userDto: UserDto) {

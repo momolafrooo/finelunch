@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -13,6 +14,11 @@ export class AuthController {
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
     return await this.authService.login(loginDto);
+  }
+
+  @Post('register')
+  async register(@Body() registerDto: RegisterDto) {
+    return await this.authService.register(registerDto);
   }
 
   @Post('forgot-password')

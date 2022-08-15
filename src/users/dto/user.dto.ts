@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  Length,
+  Matches,
+} from 'class-validator';
 
 export class UserDto {
   @IsNotEmpty()
@@ -17,5 +23,23 @@ export class UserDto {
   @IsNotEmpty()
   roleId: string;
 
+  @IsOptional()
+  roleSlug: string;
+
+  @IsOptional()
   avatar?: string;
+
+  @IsOptional()
+  @Length(8)
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message: 'Password too weak',
+  })
+  password?: string;
+
+  @IsOptional()
+  @Length(8)
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message: 'Password too weak',
+  })
+  passwordConfirmation?: string;
 }

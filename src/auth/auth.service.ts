@@ -14,6 +14,8 @@ import { comparePassword } from '../utils/hash';
 import { EmailService } from '../email/email.service';
 import { v4 as uuidv4 } from 'uuid';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { RegisterDto } from './dto/register.dto';
+import { UserDto } from '../users/dto/user.dto';
 
 const RESET_PASSWORD_EXPIRE = 1000 * 60 * 60;
 
@@ -26,14 +28,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  private async validateUser(username: string, password: string) {
-    const user = await this.usersService.findByUsername(username);
-    if (user && comparePassword(password, user.password)) {
-      return user;
-    }
-    return null;
-  }
-
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.username, loginDto.password);
 
@@ -45,6 +39,13 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async register(registerDto: RegisterDto) {
+    return await this.usersService.save({
+      ...registerDto,
+      roleSlug: 'users',
+    } as UserDto);
   }
 
   async forgotPassword(email: string) {
@@ -76,6 +77,14 @@ export class AuthService {
     await this.cacheManager.del(resetPasswordDto.token);
 
     await this.usersService.updatePassword(user._id, resetPasswordDto.password);
+  }
+
+  private async validateUser(username: string, password: string) {
+    const user = await this.usersService.findByUsername(username);
+    if (user && comparePassword(password, user.password)) {
+      return user;
+    }
+    return null;
   }
 
   private async sendForgotPasswordEmail(
