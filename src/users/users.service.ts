@@ -4,19 +4,23 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
 import { hashPassword } from '../utils/hash';
 import { UserDto } from './dto/user.dto';
 import { USER_PASSWORD } from '../utils/constants';
 import { RolesService } from '../roles/roles.service';
+import { PaginationQueryDto } from '../dto/index.dto';
+import { getSearchQuery } from '../utils/search';
+
+const SEARCH_FIELDS = ['username', 'email', 'firstName', 'lastName'];
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name)
-    private readonly userModel: Model<UserDocument>,
+    private readonly userModel: PaginateModel<UserDocument>,
     @Inject('ROLE_SERVICE') private readonly roleService: RolesService,
   ) {}
 
@@ -38,8 +42,22 @@ export class UsersService {
     return this.userModel.findOne({ email });
   }
 
-  async findAll() {
-    return this.userModel.find().sort({ created_at: -1 }).populate('role');
+  async findAll(query: PaginationQueryDto) {
+    const { page = 1, limit = 12, sort = 'asc', search } = query;
+
+    const options = getSearchQuery(SEARCH_FIELDS, search);
+
+    return this.userModel.paginate(
+      {
+        $or: options,
+      },
+      {
+        sort: { created_at: sort === 'asc' ? 1 : -1 },
+        populate: ['role'],
+        limit,
+        page,
+      },
+    );
   }
 
   async save(userDto: UserDto) {

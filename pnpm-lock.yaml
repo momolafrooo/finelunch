@@ -34,6 +34,7 @@ specifiers:
   jest: 28.1.2
   moment: ^2.29.4
   mongoose: ^6.5.0
+  mongoose-paginate-v2: ^1.7.0
   nodemailer: ^6.7.7
   passport: ^0.6.0
   passport-jwt: ^4.0.0
@@ -69,6 +70,7 @@ dependencies:
   handlebars: 4.7.7
   moment: 2.29.4
   mongoose: 6.5.0
+  mongoose-paginate-v2: 1.7.0
   nodemailer: 6.7.7
   passport: 0.6.0
   passport-jwt: 4.0.0
@@ -5094,6 +5096,11 @@ packages:
       socks: 2.7.0
     optionalDependencies:
       saslprep: 1.0.3
+    dev: false
+
+  /mongoose-paginate-v2/1.7.0:
+    resolution: {integrity: sha512-r9bns1sMWRl0QO3YXVZ/uGOL/CYcDXTmapGHlddIgzbfOhVxUWKHKItwJO8rZICF1ooOukLQv8qQLVTc3qSLpQ==}
+    engines: {node: '>=4.0.0'}
     dev: false
 
   /mongoose/6.5.0:
