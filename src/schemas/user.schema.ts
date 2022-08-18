@@ -58,13 +58,6 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-UserSchema.index({
-  username: 'text',
-  email: 'text',
-  firstName: 'text',
-  lastName: 'text',
-});
-
 UserSchema.plugin(mongoosePaginate);
 
 UserSchema.set('toJSON', {

@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderDocument } from '../schemas/order.schema';
 import { OrderDto } from './dto/order.dto';
@@ -7,6 +7,7 @@ import { MenusService } from '../menus/menus.service';
 import { DishDocument } from '../schemas/dish.schema';
 import { OrdersStatus } from './orders.status';
 import * as moment from 'moment';
+import { PaginationQueryDto } from '../dto/index.dto';
 
 const GRANT = 1500;
 
@@ -14,13 +15,23 @@ const GRANT = 1500;
 export class OrdersService {
   constructor(
     @InjectModel(Order.name)
-    private readonly orderModel: Model<OrderDocument>,
+    private readonly orderModel: PaginateModel<OrderDocument>,
     @Inject('MENU_SERVICE')
     private readonly menuService: MenusService,
   ) {}
 
-  async findAll() {
-    return this.orderModel.find().populate('dish').populate('user');
+  async findAll(query: PaginationQueryDto) {
+    const { page = 1, limit = 12, sort = 'asc' } = query;
+
+    return this.orderModel.paginate(
+      {},
+      {
+        sort: { created_at: sort === 'asc' ? 1 : -1 },
+        populate: ['dish', 'user'],
+        limit,
+        page,
+      },
+    );
   }
 
   async findById(id: string) {

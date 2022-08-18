@@ -3,21 +3,37 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Dish, DishDocument } from '../schemas/dish.schema';
 import { DishDto } from './dto/dish.dto';
 import { createSlug } from '../utils/slug';
+import { PaginationQueryDto } from '../dto/index.dto';
+import { getSearchQuery } from '../utils/search';
+
+const SEARCH_FIELDS = ['name', 'price'];
 
 @Injectable()
 export class DishesService {
   constructor(
     @InjectModel(Dish.name)
-    private readonly dishModel: Model<DishDocument>,
+    private readonly dishModel: PaginateModel<DishDocument>,
   ) {}
 
-  async findAll() {
-    return this.dishModel.find();
+  async findAll(query: PaginationQueryDto) {
+    const { page = 1, limit = 12, sort = 'asc', search } = query;
+
+    const options = getSearchQuery(SEARCH_FIELDS, search);
+    return this.dishModel.paginate(
+      {
+        $or: options,
+      },
+      {
+        sort: { created_at: sort === 'asc' ? 1 : -1 },
+        limit,
+        page,
+      },
+    );
   }
 
   async findById(id: string) {

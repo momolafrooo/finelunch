@@ -4,24 +4,40 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Menu, MenuDocument } from '../schemas/menu.schema';
 import { MenuDto, SelectedDish } from './dto/menu.dto';
 import { DishesService } from '../dishes/dishes.service';
 import { createSlug } from '../utils/slug';
+import { PaginationQueryDto } from '../dto/index.dto';
+import { getSearchQuery } from '../utils/search';
+
+const SEARCH_FIELDS = ['name'];
 
 @Injectable()
 export class MenusService {
   constructor(
     @InjectModel(Menu.name)
-    private readonly menuModel: Model<MenuDocument>,
+    private readonly menuModel: PaginateModel<MenuDocument>,
     @Inject('DISH_SERVICE')
     private readonly dishService: DishesService,
   ) {}
 
-  async findAll() {
-    return this.menuModel.find();
+  async findAll(query: PaginationQueryDto) {
+    const { page = 1, limit = 12, sort = 'asc', search } = query;
+
+    const options = getSearchQuery(SEARCH_FIELDS, search);
+    return await this.menuModel.paginate(
+      {
+        $or: options,
+      },
+      {
+        sort: { created_at: sort === 'asc' ? 1 : -1 },
+        limit,
+        page,
+      },
+    );
   }
 
   async findById(id: string) {

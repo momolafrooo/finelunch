@@ -6,11 +6,13 @@ import {
   Inject,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ContributionsService } from './contributions.service';
 import { ContributionDto } from './dto/contribution.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
+import { PaginationQueryDto } from '../dto/index.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('contributions')
@@ -21,8 +23,8 @@ export class ContributionsController {
   ) {}
 
   @Get()
-  async findAll() {
-    return await this.contributionService.findAll();
+  async findAll(@Query() query: PaginationQueryDto) {
+    return await this.contributionService.findAll(query);
   }
 
   @Get(':id')
