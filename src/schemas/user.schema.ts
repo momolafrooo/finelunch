@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Role } from './role.schema';
 import { Exclude } from 'class-transformer';
+import * as mongoosePaginate from 'mongoose-paginate-v2';
 
 export type UserDocument = User & mongoose.Document;
 
@@ -56,6 +57,8 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.plugin(mongoosePaginate);
 
 UserSchema.set('toJSON', {
   transform: (doc, ret) => {

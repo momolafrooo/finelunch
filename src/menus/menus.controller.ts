@@ -7,11 +7,13 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { MenusService } from './menus.service';
 import { MenuDto } from './dto/menu.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
+import { PaginationQueryDto } from '../dto/index.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('menus')
@@ -22,8 +24,8 @@ export class MenusController {
   ) {}
 
   @Get()
-  async findAll() {
-    return await this.menuService.findAll();
+  async findAll(@Query() query: PaginationQueryDto) {
+    return await this.menuService.findAll(query);
   }
 
   @Get(':id')

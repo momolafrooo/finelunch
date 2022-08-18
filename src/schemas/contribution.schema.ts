@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { User } from './user.schema';
 import { OrderDocument } from './order.schema';
+import * as mongoosePaginate from 'mongoose-paginate-v2';
 
 export type ContributionDocument = Contribution & mongoose.Document;
 
@@ -43,3 +44,5 @@ export class Contribution {
 }
 
 export const ContributionSchema = SchemaFactory.createForClass(Contribution);
+
+ContributionSchema.plugin(mongoosePaginate);

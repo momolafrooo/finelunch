@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { User } from './user.schema';
 import { Dish } from './dish.schema';
+import * as mongoosePaginate from 'mongoose-paginate-v2';
 
 export type OrderDocument = Order & mongoose.Document;
 
@@ -51,3 +52,5 @@ OrderSchema.set('toJSON', {
     return ret;
   },
 });
+
+OrderSchema.plugin(mongoosePaginate);

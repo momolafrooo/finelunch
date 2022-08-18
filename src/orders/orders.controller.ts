@@ -7,12 +7,14 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrderDto } from './dto/order.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
+import { PaginationQueryDto } from '../dto/index.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('orders')
@@ -23,8 +25,8 @@ export class OrdersController {
   ) {}
 
   @Get()
-  async findAll() {
-    return await this.orderService.findAll();
+  async findAll(@Query() query: PaginationQueryDto) {
+    return await this.orderService.findAll(query);
   }
 
   @Get(':id')

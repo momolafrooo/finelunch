@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   Contribution,
@@ -15,28 +15,47 @@ import { UsersService } from '../users/users.service';
 import { OrdersService } from '../orders/orders.service';
 import { ContributionType } from './contributions.type';
 import { OrdersStatus } from '../orders/orders.status';
+import { PaginationQueryDto } from '../dto/index.dto';
+import { getSearchQuery } from '../utils/search';
 
 const MONTHLY_CONTRIBUTION = 10000;
+
+const SEARCH_FIELDS = ['type', 'month', 'user.username'];
 
 @Injectable()
 export class ContributionsService {
   constructor(
     @InjectModel(Contribution.name)
-    private readonly contributionModel: Model<ContributionDocument>,
+    private readonly contributionModel: PaginateModel<ContributionDocument>,
     @Inject('USER_SERVICE')
     private readonly userService: UsersService,
     @Inject('ORDER_SERVICE')
     private readonly orderService: OrdersService,
   ) {}
 
-  async findAll() {
-    return this.contributionModel
-      .find()
-      .populate({
-        path: 'order',
-        populate: 'user',
-      })
-      .populate('user');
+  async findAll(query: PaginationQueryDto) {
+    const { page = 1, limit = 12, sort = 'asc', search } = query;
+
+    const options = getSearchQuery(SEARCH_FIELDS, search);
+    return this.contributionModel.paginate(
+      {
+        $or: options,
+      },
+      {
+        sort: { created_at: sort === 'asc' ? 1 : -1 },
+        populate: [
+          {
+            path: 'user',
+          },
+          {
+            path: 'order',
+            populate: 'user',
+          },
+        ],
+        limit,
+        page,
+      },
+    );
   }
 
   async findById(id: string) {

@@ -7,11 +7,13 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { RoleDto } from './dto/role.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
+import { PaginationQueryDto } from '../dto/index.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('roles')
@@ -21,8 +23,8 @@ export class RolesController {
   ) {}
 
   @Get()
-  async findAll() {
-    return await this.roleService.findAll();
+  async findAll(@Query() query: PaginationQueryDto) {
+    return await this.roleService.findAll(query);
   }
 
   @Get(':id')

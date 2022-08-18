@@ -1,19 +1,35 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { PaginateModel } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Restaurant, RestaurantDocument } from '../schemas/restaurant.schema';
 import { createSlug } from '../utils/slug';
 import { RestoDto } from './dto/restaurant.dto';
+import { PaginationQueryDto } from '../dto/index.dto';
+import { getSearchQuery } from '../utils/search';
+
+const SEARCH_FIELDS = ['name'];
 
 @Injectable()
 export class RestaurantsService {
   constructor(
     @InjectModel(Restaurant.name)
-    private readonly restaurantModel: Model<RestaurantDocument>,
+    private readonly restaurantModel: PaginateModel<RestaurantDocument>,
   ) {}
 
-  async findAll() {
-    return this.restaurantModel.find();
+  async findAll(query: PaginationQueryDto) {
+    const { page = 1, limit = 12, sort = 'asc', search } = query;
+
+    const options = getSearchQuery(SEARCH_FIELDS, search);
+    return this.restaurantModel.paginate(
+      {
+        $or: options,
+      },
+      {
+        sort: { created_at: sort === 'asc' ? 1 : -1 },
+        limit,
+        page,
+      },
+    );
   }
 
   async findById(id: string) {

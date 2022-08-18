@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Restaurant } from './restaurant.schema';
+import * as mongoosePaginate from 'mongoose-paginate-v2';
 
 export type DishDocument = Dish & mongoose.Document;
 
@@ -38,3 +39,5 @@ export class Dish {
 }
 
 export const DishSchema = SchemaFactory.createForClass(Dish);
+
+DishSchema.plugin(mongoosePaginate);

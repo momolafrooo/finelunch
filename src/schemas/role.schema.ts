@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import * as mongoosePaginate from 'mongoose-paginate-v2';
 
 export type RoleDocument = Role & Document;
 
@@ -23,3 +24,5 @@ export class Role {
 }
 
 export const RoleSchema = SchemaFactory.createForClass(Role);
+
+RoleSchema.plugin(mongoosePaginate);
