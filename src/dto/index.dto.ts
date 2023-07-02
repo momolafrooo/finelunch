@@ -1,6 +1,6 @@
 export class PaginationQueryDto {
-  limit: number;
-  page: number;
-  search: string;
-  sort: string;
+  limit = 15;
+  page = 1;
+  search = '';
+  sort = 'asc';
 }

@@ -9,6 +9,9 @@ async function bootstrap() {
   app.setGlobalPrefix('/api');
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new GlobalExceptionFilter());
+  app.enableCors({
+    origin: ['http://localhost:3001'],
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Finelunch')
@@ -19,6 +22,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger-ui', app, document);
 
-  await app.listen(8080);
+  await app.listen(9000);
 }
 bootstrap();
